@@ -45,10 +45,10 @@ def extract_meta(line):
     Remove meta marks and extract info from blog post md files
     @line: String
     """
-    if len(line) > 2:
+    if line[:2] == "# ":
         return line[2:]
     else:
-        raise Exception("Expected to find data and didn't")
+        raise Exception("Data invalid or non-existant")
 
 
 def remove_unsafe_chars(string):
