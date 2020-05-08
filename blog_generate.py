@@ -57,7 +57,7 @@ def remove_unsafe_chars(string):
     character requiring extra encoding (because who needs that noise)
     Returns a string with all unsafe chars either replaced or removed.
     """
-    pattern = re.compile("[a-zA-Z0-9\-_\.\+!\*'\()]")
+    pattern = re.compile("[a-zA-Z0-9-_.+!*'()]")
     fixed = ""
     for c in string:
         if pattern.search(c):
