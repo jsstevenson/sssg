@@ -45,8 +45,8 @@ def extract_meta(line):
     Remove meta marks and extract info from blog post md files
     @line: String
     """
-    if line[:2] == "# ":
-        return line[2:]
+    if (line[:2] == "# ") and (line[-1] == '\n'):
+        return line[2:-1]
     else:
         raise Exception("Data invalid or non-existant")
 
@@ -84,8 +84,13 @@ def add_post(fpath, posts_list, tags_dict):
         url = url[:-1]
     tags = extract_meta(infile.readline()).split(',')
     tags = [remove_unsafe_chars(tag) for tag in tags]
-    date = datetime.datetime.strptime(extract_meta(infile.readline()),
-                                                   "%Y/%m/%d")
+    print("****")
+    line = infile.readline()
+    print(repr(line))
+    line = extract_meta(line)
+    print(repr(line))
+    date = datetime.datetime.strptime(line, "%Y/%m/%d")
+    # date = datetime.datetime.strptime(extract_meta(infile.readline()),"%Y/%m/%d")
     preview = extract_meta(infile.readline())
 
 
