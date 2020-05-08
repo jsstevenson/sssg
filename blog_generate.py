@@ -90,7 +90,7 @@ def add_post(fpath, posts_list, tags_dict):
 
 
     # get body
-    body = infile.read()
+    body = mistune.markdown(infile.read())
     infile.close()
 
     # clean up newlines
