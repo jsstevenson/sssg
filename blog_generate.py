@@ -92,9 +92,9 @@ def add_post(fpath, posts_list, tags_dict):
     infile.close()
 
     # clean up newlines
-    if body[0] == '\n':
+    while body[0] == '\n':
         body = body[1:]
-    if body[-1] == '\n':
+    while body[-1] == '\n':
         body = body[:-1]
 
     # generate objects
@@ -303,8 +303,8 @@ def main():
     input_dir = args.In
     output_dir = args.Out
 
-    posts_list = []
-    tags_dict = {}
+    posts_list = [] # list of Post objects
+    tags_dict = {} # key is tag name, value is Tag object
 
     # open blog posts directory, read each post into internal listings
     for entry in os.listdir(input_dir):
