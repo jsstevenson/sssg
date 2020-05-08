@@ -72,8 +72,8 @@ def add_post(fpath, posts_list, tags_dict):
     Add file located at fpath to the stored collection of posts and tags.
     @fpath: String, path to find file to add
     @posts_list: List of Post objects
-    @tags_dict: DefaultDict where keys are tag name Strings and values are
-    lists of Post objects
+    @tags_dict: dict where keys are tag name Strings and values are
+    Set of Post objects
     """
     infile = open(fpath)
 
@@ -82,13 +82,20 @@ def add_post(fpath, posts_list, tags_dict):
     url = remove_unsafe_chars(title)[:MAX_URL_LEN]
     tags = extract_meta(infile.readline()).split(',')
     tags = [remove_unsafe_chars(tag) for tag in tags]
-    fmt = "%Y/%m/%d"
-    date = datetime.datetime.strptime(extract_meta(infile.readline()), fmt)
+    date = datetime.datetime.strptime(extract_meta(infile.readline()),
+                                                   "%Y/%m/%d")
     preview = extract_meta(infile.readline())
+
 
     # get body
     body = infile.read()
     infile.close()
+
+    # clean up newlines
+    if body[0] == '\n':
+        body = body[1:]
+    if body[-1] == '\n':
+        body = body[:-1]
 
     # generate objects
     post = Post(title, url, tags, date, body)
@@ -98,7 +105,7 @@ def add_post(fpath, posts_list, tags_dict):
             tags_dict[tag].members.append(post)
         else:
             tags_dict[tag] = Tag(tag, [post])
-    return
+    return post
 
 
 def make_header(posts):
