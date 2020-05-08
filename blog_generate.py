@@ -80,6 +80,8 @@ def add_post(fpath, posts_list, tags_dict):
     # get meta
     title = extract_meta(infile.readline())
     url = remove_unsafe_chars(title)[:MAX_URL_LEN]
+    while not url[-1].isalnum() and len(url) > 1:
+        url = url[-1]
     tags = extract_meta(infile.readline()).split(',')
     tags = [remove_unsafe_chars(tag) for tag in tags]
     date = datetime.datetime.strptime(extract_meta(infile.readline()),
