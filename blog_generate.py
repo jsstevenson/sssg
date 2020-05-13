@@ -6,7 +6,7 @@ import mistune
 from collections import defaultdict
 
 
-MAX_URL_LEN = 14
+MAX_URL_LEN = 18
 
 
 class Tag:
@@ -84,15 +84,8 @@ def add_post(fpath, posts_list, tags_dict):
         url = url[:-1]
     tags = extract_meta(infile.readline()).split(',')
     tags = [remove_unsafe_chars(tag) for tag in tags]
-    print("****")
-    line = infile.readline()
-    print(repr(line))
-    line = extract_meta(line)
-    print(repr(line))
-    date = datetime.datetime.strptime(line, "%Y/%m/%d")
-    # date = datetime.datetime.strptime(extract_meta(infile.readline()),"%Y/%m/%d")
+    date = datetime.datetime.strptime(extract_meta(infile.readline()),"%Y/%m/%d")
     preview = extract_meta(infile.readline())
-
 
     # get body
     body = mistune.markdown(infile.read())
@@ -105,7 +98,7 @@ def add_post(fpath, posts_list, tags_dict):
         body = body[:-1]
 
     # generate objects
-    post = Post(title, url, tags, date, body)
+    post = Post(title, url, tags, date, preview, body)
     posts_list.append(post)
     for tag in tags:
         if tag in tags_dict.keys():
@@ -115,7 +108,7 @@ def add_post(fpath, posts_list, tags_dict):
     return post
 
 
-def make_header(posts):
+def make_header(posts, in_path):
     """
     @posts: List of Post objects
     Create header HTML, including links to all posts
@@ -126,7 +119,7 @@ def make_header(posts):
     header_html = ""
     for post in posts:
         listings[post.year].add(post.strftime("%B"))
-    header_template_html = open("template_components/header_template.html")
+    header_template_html = open(os.path.join(in_path, "template_components/header_template.html"))
     start_pattern = re.compile("<!--monthlist-->")
     line = header_template_html.readline()
     while not start_pattern.search(line):
@@ -150,7 +143,7 @@ def make_template(input_dir, header_html):
     returns the full template as a string.
     """
     t_file = open(os.path.join(input_dir,
-                               'template_components/body_template.html', 'r'))
+                               'template_components/body_template.html'), 'r')
     template_html = ""
     pattern = re.compile("<!--navbar-->")
     line = t_file.readline()
@@ -302,24 +295,24 @@ def make_core_pages(template_html, input_dir, output_dir):
 def main():
     parser = argparse.ArgumentParser()
     # TODO clean up parser setup
-    parser.add_argument('In', metavar='in', type=str,
+    parser.add_argument('in_path', metavar='in_path', type=str,
                         help='path to input dir')
-    parser.add_argument('Out', metavar='out', type=str,
+    parser.add_argument('out_path', metavar='out_path', type=str,
                         help='path to output dir')
     args = parser.parse_args()
-    input_dir = args.In
-    output_dir = args.Out
+    input_dir = args.in_path
+    output_dir = args.out_path
 
     posts_list = [] # list of Post objects
     tags_dict = {} # key is tag name, value is Tag object
 
     # open blog posts directory, read each post into internal listings
-    for entry in os.listdir(input_dir):
+    for entry in os.listdir(os.path.join(input_dir, "posts")):
         if os.path.isfile(os.path.join(input_dir, entry)):
             add_post(os.path.join(input_dir, entry), posts_list, tags_dict)
 
     # generate template
-    header_html = make_header(posts_list)
+    header_html = make_header(posts_list, input_dir)
     template_html = make_template(input_dir, header_html)
 
     # generate pages from template
