@@ -4,6 +4,7 @@ import os
 import re
 import mistune
 from collections import defaultdict
+import pathlib
 
 
 MAX_URL_LEN = 18
@@ -171,8 +172,13 @@ def make_post(post, template, output_dir):
                                   f"<title>{post.title}</title>")
     post_html = post_html.replace("<!--main page-->\n<!--/main page-->",
                                   post.body)
-    out_path = os.path.join(output_dir, f"blog/{post.date.year}/" +
-                            "{post.date.month}/{post.url}.html")
+    out_path = os.path.join(output_dir, "blog")
+    pathlib.Path(out_path).mkdir(exist_ok=True)
+    out_path = os.path.join(out_path, post.date.year)
+    pathlib.Path(out_path).mkdir(exist_ok=True)
+    out_path = os.path.join(out_path, post.date.month)
+    pathlib.Path(out_path).mkdir(exist_ok=True)
+    out_path = os.path.join(out_path, f"{post.url}.html")
     out_file = open(out_path, "w")
     out_file.write(post_html)
     out_file.close()
@@ -212,7 +218,11 @@ def make_tag(tag, template, output_dir):
                                   f"<title>Tag: {tag.name}</title>")
     page_html = page_html.replace("<!--main page-->\n<!--/main page-->",
                                   post_cards)
-    out_path = os.path.join(output_dir, f"blog/tag/{tag.name}.html")
+    out_path = os.path.join(output_dir, "blog")
+    pathlib.Path(out_path).mkdir(exist_ok=True)
+    out_path = os.path.join(out_path, "tag")
+    pathlib.Path(out_path).mkdir(exist_ok=True)
+    out_path = os.path.join(out_path, f"{tag.name}.html")
     out_file = open(out_path, "w")
     out_file.write(page_html)
     out_file.close()
@@ -235,7 +245,11 @@ def make_month(month, posts, template_html, output_dir):
                                   f"<title>{month[0]} {month[1]}</title>")
     page_html = page_html.replace("<!--main page-->\n<!--/main page-->",
                                   post_cards)
-    out_path = os.path.join(output_dir, f"blog/{month[1]}/{month[0]}.html")
+    out_path = os.path.join(output_dir, "blog")
+    pathlib.Path(out_path).mkdir(exist_ok=True)
+    out_path = os.path.join(out_path, month[1])
+    pathlib.Path(out_path).mkdir(exist_ok=True)
+    out_path = os.path.join(out_path, f"{month[0]}.html")
     out_file = open(out_path, "w")
     out_file.write(page_html)
     out_file.close()
@@ -257,7 +271,9 @@ def make_recent(posts, template_html, output_dir):
                                   "<title>recent posts</title>")
     page_html = page_html.replace("<!--main page-->\n<!--/main page-->",
                                   post_cards)
-    out_path = os.path.join(output_dir, "blog/recent.html")
+    out_path = os.path.join(output_dir, "blog")
+    pathlib.Path(out_path).mkdir(exist_ok=True)
+    out_path = os.path.join(out_path, "recent.html")
     out_file = open(out_path, "w")
     out_file.write(page_html)
     out_file.close()
@@ -272,23 +288,32 @@ def make_core_pages(template_html, input_dir, output_dir):
     premade HTML to generate "home" and "projects" pages.
     @output_dir: string containing path to output directory
     """
-    home_path = os.path.join(input_dir, "home_content.html")
-    home_file = open(home_path, "r")
+    home_in_path = os.path.join(input_dir, "home_content.html")
+    home_in_file = open(home_in_path, "r")
     home_html = template_html[:]
     home_html = home_html.replace("<title>template</title>",
                                   "<title>james stevenson</title>")
     home_html = home_html.replace("<!--main page-->\n<!--/main page-->",
-                                  home_file.read())
-    home_file.close()
+                                  home_in_file.read())
+    home_in_file.close()
+    home_out_path = os.path.join(output_dir, "index.html")
+    home_out_file = open(home_out_path, "w")
+    home_out_file.write(home_html)
+    home_out_file.close()
 
-    projects_path = os.path.join(input_dir, "projects_content.html")
-    projects_file = open(projects_path, "r")
+    projects_in_path = os.path.join(input_dir, "projects_content.html")
+    projects_in_file = open(projects_in_path, "r")
     projects_html = template_html[:]
     projects_html = projects_html.replace("<title>template</title>",
                                           "<title>projects</title>")
     projects_html = projects_html.replace("<!--main page-->\n<!--/main page-->",
-                                          projects_file.read())
-    projects_file.close()
+                                          projects_in_file.read())
+    projects_in_file.close()
+    projects_out_path = os.path.join(output_dir, "projects.html")
+    projects_out_file = open(projects_out_path, "w")
+    projects_out_file.write(projects_html)
+    projects_out_file.close()
+
     return
 
 
@@ -316,6 +341,7 @@ def main():
     template_html = make_template(input_dir, header_html)
 
     # generate pages from template
+    pathlib.Path(input_dir).mkdir(exist_ok=True)
     for post in posts_list:
         make_post(post, template_html, output_dir)
     for tag in tags_dict.keys():
