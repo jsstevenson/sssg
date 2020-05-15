@@ -107,6 +107,7 @@ def add_post(fpath, posts_list, tags_dict):
             tags_dict[tag].members.append(post)
         else:
             tags_dict[tag] = Tag(tag, [post])
+    print(f"Added post from {fpath}")
     return post
 
 
@@ -135,6 +136,7 @@ def make_header(posts, in_path):
     while line:
         header_html += line
         line = header_template_html.readline()
+    print("Header generation successful")
     return header_html
 
 
@@ -158,6 +160,7 @@ def make_template(input_dir, header_html):
     while line:
         template_html += line
         line = t_file.readline()
+    print("Template generation successful")
     return template_html
 
 
@@ -183,6 +186,7 @@ def make_post(post, template, output_dir):
     out_file = open(out_path, "w")
     out_file.write(post_html)
     out_file.close()
+    print(f"Successfully wrote post: {post.title}")
     return post_html
 
 
@@ -227,6 +231,7 @@ def make_tag(tag, template, output_dir):
     out_file = open(out_path, "w")
     out_file.write(page_html)
     out_file.close()
+    print(f"Successfully created page for tag: {tag.name}")
     return page_html
 
 
@@ -254,6 +259,7 @@ def make_month(month, posts, template_html, output_dir):
     out_file = open(out_path, "w")
     out_file.write(page_html)
     out_file.close()
+    print(f"Successfully created page for month: {month[0]} {month[1]}")
     return page_html
 
 
@@ -278,8 +284,8 @@ def make_recent(posts, template_html, output_dir):
     out_file = open(out_path, "w")
     out_file.write(page_html)
     out_file.close()
+    print("Successfully generated page for recent posts")
     return page_html
-    return
 
 
 def make_core_pages(template_html, input_dir, output_dir):
@@ -315,12 +321,12 @@ def make_core_pages(template_html, input_dir, output_dir):
     projects_out_file.write(projects_html)
     projects_out_file.close()
 
+    print("Successfully generated core pages")
     return
 
 
 def main():
     parser = argparse.ArgumentParser()
-    # TODO clean up parser setup
     parser.add_argument('in_path', metavar='in_path', type=str,
                         help='path to input dir')
     parser.add_argument('out_path', metavar='out_path', type=str,
@@ -328,7 +334,6 @@ def main():
     args = parser.parse_args()
     input_dir = args.in_path
     output_dir = args.out_path
-    print(input_dir)
 
     posts_list = [] # list of Post objects
     tags_dict = {} # key is tag name, value is Tag object
