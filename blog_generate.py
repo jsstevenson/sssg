@@ -76,6 +76,7 @@ def add_post(fpath, posts_list, tags_dict):
     @tags_dict: dict where keys are tag name Strings and values are
     Set of Post objects
     """
+    print(f"reading post from {fpath}")
     infile = open(fpath)
 
     # get meta
@@ -327,14 +328,17 @@ def main():
     args = parser.parse_args()
     input_dir = args.in_path
     output_dir = args.out_path
+    print(input_dir)
 
     posts_list = [] # list of Post objects
     tags_dict = {} # key is tag name, value is Tag object
 
     # open blog posts directory, read each post into internal listings
-    for entry in os.listdir(os.path.join(input_dir, "posts")):
-        if os.path.isfile(os.path.join(input_dir, entry)):
-            add_post(os.path.join(input_dir, entry), posts_list, tags_dict)
+    posts_path = os.path.join(input_dir, "posts")
+    for entry in os.listdir(posts_path):
+        post_path = os.path.join(posts_path, entry)
+        if os.path.isfile(posts_path):
+            add_post(post_path, posts_list, tags_dict)
 
     # generate template
     header_html = make_header(posts_list, input_dir)
