@@ -342,7 +342,7 @@ def main():
     posts_path = os.path.join(input_dir, "posts")
     for entry in os.listdir(posts_path):
         post_path = os.path.join(posts_path, entry)
-        if os.path.isfile(posts_path):
+        if os.path.isfile(post_path):
             add_post(post_path, posts_list, tags_dict)
 
     # generate template
