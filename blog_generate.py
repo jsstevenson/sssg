@@ -121,7 +121,7 @@ def make_header(posts, in_path):
     listings = defaultdict(set)
     header_html = ""
     for post in posts:
-        listings[post.year].add(post.strftime("%B"))
+        listings[post.date.year].add(post.date.strftime("%B"))
     header_template_html = open(os.path.join(in_path, "template_components/header_template.html"))
     start_pattern = re.compile("<!--monthlist-->")
     line = header_template_html.readline()
