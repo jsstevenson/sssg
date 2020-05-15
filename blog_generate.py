@@ -350,7 +350,7 @@ def main():
     template_html = make_template(input_dir, header_html)
 
     # generate pages from template
-    pathlib.Path(input_dir).mkdir(exist_ok=True)
+    pathlib.Path(output_dir).mkdir(exist_ok=True)
     for post in posts_list:
         make_post(post, template_html, output_dir)
     for tag in tags_dict.keys():
