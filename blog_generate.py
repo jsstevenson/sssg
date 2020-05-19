@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import os
+import shutil
 import re
 import mistune
 from collections import defaultdict
@@ -156,7 +157,7 @@ def make_header(posts, in_path):
     header_html += line
     for year in listings.keys():
         for month in listings[year]:
-            header_html += f'<a class="dropdown-item" href="<!replace_with_path>/blog/{year}/{month}.html">{month} {year}</a>\n'
+            header_html += f'<a class="dropdown-item" href="<!replace_with_path>blog/{year}/{month}.html">{month} {year}</a>\n'
     header_template_html.readline()
     while line:
         header_html += line
@@ -213,6 +214,7 @@ def make_post(post, template, output_dir):
                                   f"<title>{post.title}</title>")
     post_html = post_html.replace("<!--main page-->\n<!--/main page-->",
                                   post.body)
+    post_html = post_html.replace("<!replace_with_path>","../../../")
     out_path = os.path.join(output_dir, "blog")
     pathlib.Path(out_path).mkdir(exist_ok=True)
     out_path = os.path.join(out_path, str(post.date.year))
@@ -268,6 +270,7 @@ def make_tag(tag, template, output_dir):
                                   f"<title>Tag: {tag.name}</title>")
     page_html = page_html.replace("<!--main page-->\n<!--/main page-->",
                                   post_cards)
+    page_html = page_html.replace("<!replace_with_path>", "../../")
     out_path = os.path.join(output_dir, "blog")
     pathlib.Path(out_path).mkdir(exist_ok=True)
     out_path = os.path.join(out_path, "tag")
@@ -302,6 +305,7 @@ def make_month(month, posts, template_html, output_dir):
                                   f"<title>{month[0]} {month[1]}</title>")
     page_html = page_html.replace("<!--main page-->\n<!--/main page-->",
                                   post_cards)
+    page_html = page_html.replace("<!replace_with_path>", "../../")
     out_path = os.path.join(output_dir, "blog")
     pathlib.Path(out_path).mkdir(exist_ok=True)
     out_path = os.path.join(out_path, month[1])
@@ -335,6 +339,7 @@ def make_recent(posts, template_html, output_dir):
                                   "<title>recent posts</title>")
     page_html = page_html.replace("<!--main page-->\n<!--/main page-->",
                                   post_cards)
+    page_html = page_html.replace("<!replace_with_path>", "../")
     out_path = os.path.join(output_dir, "blog")
     pathlib.Path(out_path).mkdir(exist_ok=True)
     out_path = os.path.join(out_path, "recent.html")
@@ -357,6 +362,7 @@ def make_core_pages(template_html, input_dir, output_dir):
     Returns:
         Nothing, but writes HTML to files under output_dir
     """
+    template_html = template_html.replace("<!replace_with_path>", "")
     home_in_path = os.path.join(input_dir, "home_content.html")
     home_in_file = open(home_in_path, "r")
     home_html = template_html[:]
@@ -413,6 +419,9 @@ def main():
 
     # generate pages from template
     pathlib.Path(output_dir).mkdir(exist_ok=True)
+    pathlib.Path(os.path.join(output_dir, "css")).mkdir(exist_ok=True)
+    shutil.copy(os.path.join(input_dir, "template_components/custom.css"),
+                os.path.join(output_dir, "css/"))
     for post in posts_list:
         make_post(post, template_html, output_dir)
     for tag in tags_dict.values():
