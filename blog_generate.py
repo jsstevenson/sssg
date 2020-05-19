@@ -7,34 +7,39 @@ from collections import defaultdict
 import pathlib
 
 
-MAX_URL_LEN = 18
+MAX_URL_LEN = 18  # max length of a tag or post file (not counting .html)
 
 
 class Tag:
+    """Class representing tags associated with blog posts
+
+    The tag-to-post relationship is many-to-many.
+
+    Attributes:
+        name (String): name of the tag. __init__() will sanitize it.
+        members (List): contains Post objects tagged w/ this tag
     """
-    Simple tag class.
-    @name: String (init sanitizes)
-    @members: List (empty or otherwise) of Post objects
-    """
+
     def __init__(self, name, members=[]):
+        """Default constructor builds tag with given name and empty members"""
         self.name = remove_unsafe_chars(name)
         self.members = members
 
 
 class Post:
+    """Class representing a blog post
+
+    Attributes:
+        title (String): post title
+        tags (List): list of Tag objects associated with the post
+        date (datetime.datetime): date post published
+        preview (String): Preview text to display in post card
+        body (String): HTML containing blog post substance
     """
-    Simple post class. Maintains a list of strings that are names of Tag
-    objects.
-    @title: String
-    @url: String containing the HTML doc name minus extension (not full URL)
-    @tags: List of Strings where each corresponds to the name field of a Tag
-    @date: Datetime.Datetime
-    @preview: String containing short preview text
-    """
-    def __init__(self, title="", url="", tags=[], date=None, preview="",
+
+    def __init__(self, title, date, tags=[], preview="",
                  body=""):
         self.title = title
-        self.url = url
         self.tags = tags
         self.date = date
         self.preview = preview
@@ -42,9 +47,16 @@ class Post:
 
 
 def extract_meta(line):
-    """
-    Remove meta marks and extract info from blog post md files
-    @line: String
+    """Remove meta marks and extract info from blog post md files
+
+    Args:
+        line (String): line to pull info from
+
+    Returns:
+        line without leading '# ' and ending newline
+
+    Raises:
+        Exception: String is formatted incorrectly
     """
     if (line[:2] == "# ") and (line[-1] == '\n'):
         return line[2:-1]
@@ -53,10 +65,14 @@ def extract_meta(line):
 
 
 def remove_unsafe_chars(string):
-    """
-    Check every char in input @string to verify that it's not an unsafe
-    character requiring extra encoding (because who needs that noise)
-    Returns a string with all unsafe chars either replaced or removed.
+    """Remove URL-unsafe characters
+
+    Args:
+        string (String): to be sanitized
+
+    Returns:
+        given string without any URL-unsafe characters (and spaces replaced
+        with dashes)
     """
     pattern = re.compile("[a-zA-Z0-9-_.+!*'()]")
     fixed = ""
@@ -69,12 +85,16 @@ def remove_unsafe_chars(string):
 
 
 def add_post(fpath, posts_list, tags_dict):
-    """
-    Add file located at fpath to the stored collection of posts and tags.
-    @fpath: String, path to find file to add
-    @posts_list: List of Post objects
-    @tags_dict: dict where keys are tag name Strings and values are
-    Set of Post objects
+    """Create Post (and any necessary Tags) and add them to tracking lists
+
+    Args:
+        fpath (String): path to raw post file (should be .md)
+        posts_list (List): possibly-empty list of Posts; will be modified
+        tags_dict (Dictionary): key is tag name, value is Tag object
+
+    returns:
+        created Post object. Also modifies posts_list and tags_dict to contain
+        any newly created objects where needed
     """
     print(f"reading post from {fpath}")
     infile = open(fpath)
@@ -113,9 +133,14 @@ def add_post(fpath, posts_list, tags_dict):
 
 def make_header(posts, in_path):
     """
-    @posts: List of Post objects
-    Create header HTML, including links to all posts
-    Read from hardcoded template file
+    Make page header with correct links and appropriate relative paths
+
+    Args:
+        posts (List): List of Post objects
+        in_path (String): path to provided input directory
+
+    Returns:
+        complete HTML for header, as a String
     TODO: more hardcoding of list border tags
     """
     listings = defaultdict(set)
@@ -131,7 +156,7 @@ def make_header(posts, in_path):
     header_html += line
     for year in listings.keys():
         for month in listings[year]:
-            header_html += f'<a class="dropdown-item" href="https://jsstevenson.github.io/blog/{year}/{month}.html">{month} {year}</a>'
+            header_html += f'<a class="dropdown-item" href="<!replace_with_path>/blog/{year}/{month}.html">{month} {year}</a>\n'
     header_template_html.readline()
     while line:
         header_html += line
@@ -141,10 +166,17 @@ def make_header(posts, in_path):
 
 
 def make_template(input_dir, header_html):
-    """
-    Create HTML template for all pages. Takes the generated Header HTML and
-    plugs it into the appropriate place on the page found at input_dir, and
-    returns the full template as a string.
+    """Create full HTML template for all pages
+
+    Gets generated header HTML and plugs it into the given body template HTML.
+    Will still need to add relative paths to all hyperlinks.
+
+    Args:
+        input_dir (String): path to provided input directory
+        header_html (String): HTML for header/navbar/etc
+
+    Returns:
+        a String containing the full HTML template for all pages
     """
     t_file = open(os.path.join(input_dir,
                                'template_components/body_template.html'), 'r')
@@ -165,11 +197,16 @@ def make_template(input_dir, header_html):
 
 
 def make_post(post, template, output_dir):
-    """
-    Assemble individual post and write to output directory.
-    Template should be a string but really it's the full HTML template.
-    Will save as a completed HTML file under the directory corresponding to
-    the post's date.
+    """Assemble individual post HTML and write to output directory.
+
+    Args:
+        post (Post): Post object to generate page for
+        template (String): page HTML body template
+        output_dir (String): path to output directory
+
+    Returns:
+        HTML for generated post page
+        Also writes post to corresponding directory under output_dir
     """
     post_html = template[:]
     post_html = post_html.replace("<title>template</title>",
@@ -178,9 +215,9 @@ def make_post(post, template, output_dir):
                                   post.body)
     out_path = os.path.join(output_dir, "blog")
     pathlib.Path(out_path).mkdir(exist_ok=True)
-    out_path = os.path.join(out_path, post.date.year)
+    out_path = os.path.join(out_path, str(post.date.year))
     pathlib.Path(out_path).mkdir(exist_ok=True)
-    out_path = os.path.join(out_path, post.date.month)
+    out_path = os.path.join(out_path, post.date.strftime("%B"))
     pathlib.Path(out_path).mkdir(exist_ok=True)
     out_path = os.path.join(out_path, f"{post.url}.html")
     out_file = open(out_path, "w")
@@ -191,10 +228,13 @@ def make_post(post, template, output_dir):
 
 
 def make_card(post):
-    """
-    @param title: String
-    @param date: datetime.datetime
-    @param preview: String
+    """Generate HTML for post card in post index pages
+
+    Args:
+        post (Post): Post object to make card for
+
+    Returns:
+        HTML for generated card
     """
     return f"""
     <div class="card" style="margin-top: 1em">
@@ -208,11 +248,16 @@ def make_card(post):
 
 
 def make_tag(tag, template, output_dir):
-    """
-    @tag: Tag object to generate page for
-    @template: string containing page HTML template
-    @output_dir: string containing path to output directory
-    Returns completed page_html and saves page to appropriate directory
+    """Generate page for tag
+
+    Args:
+        tag (Tag): tag to make page for
+        template (String): HTML (header/body) template
+        output_dir (String): path to output directory
+
+    Returns:
+        HTML for generated tag page
+        Also saves tag page to corresponding directory under output_dir
     """
     tag.members.sort(key=lambda x: x.date, reverse=True)
     post_cards = ""
@@ -236,11 +281,17 @@ def make_tag(tag, template, output_dir):
 
 
 def make_month(month, posts, template_html, output_dir):
-    """
-    @month: tuple pair of Strings indicating (month, year)
-    @posts: List of Post objects under that month/year
-    @template_html: string containing page template html
-    @output_dir: string containing path to output directory
+    """Generate index page for a given month/year
+
+    Args:
+        month (Tuple): pair of Strings indicating (month, year)
+        posts (List): of Post objects
+        template_html (String): template HTML to fill in (page header/etc)
+        output_dir (String): path to output directory
+
+    Returns:
+        HTML for generated month page
+        Also writes month page to corresponding directory under output_dir
     """
     posts.sort(key=lambda x: x.date, reverse=True)
     post_cards = ""
@@ -264,10 +315,16 @@ def make_month(month, posts, template_html, output_dir):
 
 
 def make_recent(posts, template_html, output_dir):
-    """
-    @posts_list: List of all Post objects
-    @template_html: string containing page template html
-    @output_dir: string containing path to output directory
+    """Generate page for Recent Posts
+
+    Args:
+        posts_list (List): List of all Post objects
+        template_html (String): string containing page template html
+        output_dir (String): string containing path to output directory
+
+    Returns:
+        HTML for generated Recent page
+        Also writes Recent page under corresponding directory in output_dir
     """
     posts.sort(key=lambda x: x.date, reverse=True)
     post_cards = ""
@@ -289,11 +346,16 @@ def make_recent(posts, template_html, output_dir):
 
 
 def make_core_pages(template_html, input_dir, output_dir):
-    """
-    @template_html: string containing page template html
-    @input_dir: string containing path to input directory. Should include
-    premade HTML to generate "home" and "projects" pages.
-    @output_dir: string containing path to output directory
+    """Generate core site pages
+
+    Args:
+        template_html (String): string containing page template html
+        input_dir (string): string containing path to input directory. Should
+        include premade HTML to generate "home" and "projects" pages.
+        output_dir (String): string containing path to output directoryA
+
+    Returns:
+        Nothing, but writes HTML to files under output_dir
     """
     home_in_path = os.path.join(input_dir, "home_content.html")
     home_in_file = open(home_in_path, "r")
@@ -353,8 +415,8 @@ def main():
     pathlib.Path(output_dir).mkdir(exist_ok=True)
     for post in posts_list:
         make_post(post, template_html, output_dir)
-    for tag in tags_dict.keys():
-        make_tag(tag, tags_dict[tag], template_html, output_dir)
+    for tag in tags_dict.values():
+        make_tag(tag, template_html, output_dir)
 
     months = defaultdict(list)
     for post in posts_list:
