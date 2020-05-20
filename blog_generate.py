@@ -102,7 +102,7 @@ def add_post(fpath, posts_list, tags_dict):
 
     # get meta
     title = extract_meta(infile.readline())
-    url = remove_unsafe_chars(title)[:MAX_URL_LEN]
+    url = remove_unsafe_chars(title[:MAX_URL_LEN])
     while not url[-1].isalnum() and len(url) > 1:
         url = url[:-1]
     tags = extract_meta(infile.readline()).split(',')
@@ -121,7 +121,7 @@ def add_post(fpath, posts_list, tags_dict):
         body = body[:-1]
 
     # generate objects
-    post = Post(title, url, tags, date, preview, body)
+    post = Post(title, date, tags, preview, body)
     posts_list.append(post)
     for tag in tags:
         if tag in tags_dict.keys():
@@ -221,7 +221,8 @@ def make_post(post, template, output_dir):
     pathlib.Path(out_path).mkdir(exist_ok=True)
     out_path = os.path.join(out_path, post.date.strftime("%B"))
     pathlib.Path(out_path).mkdir(exist_ok=True)
-    out_path = os.path.join(out_path, f"{post.url}.html")
+    out_path = os.path.join(out_path,
+            f"{remove_unsafe_chars(post.title[:MAX_URL_LEN])}.html")
     out_file = open(out_path, "w")
     out_file.write(post_html)
     out_file.close()
@@ -431,8 +432,8 @@ def main():
     for post in posts_list:
         m_y = (post.date.strftime("%B"), str(post.date.year))
         months[m_y].append(post)
-    for month, posts in months:
-        make_month(month, posts, template_html, output_dir)
+    for month in months.keys():
+        make_month(month, months[month], template_html, output_dir)
 
     make_recent(posts_list, template_html, output_dir)
 
