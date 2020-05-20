@@ -212,7 +212,7 @@ def make_post(post, template, output_dir):
     post_html = template[:]
     post_html = post_html.replace("<title>template</title>",
                                   f"<title>{post.title}</title>")
-    post_html = post_html.replace("<!--main page-->\n<!--/main page-->",
+    post_html = post_html.replace("<!--main page-->\n    <!--/main page-->",
                                   post.body)
     post_html = post_html.replace("<!replace_with_path>","../../../")
     out_path = os.path.join(output_dir, "blog")
@@ -231,6 +231,7 @@ def make_post(post, template, output_dir):
 
 
 def make_card(post):
+    url = f"blog/{str(post.date.year)}/{post.date.strftime('%B')}/{remove_unsafe_chars(post.title[:MAX_URL_LEN])}.html"
     """Generate HTML for post card in post index pages
 
     Args:
@@ -242,7 +243,7 @@ def make_card(post):
     return f"""
     <div class="card" style="margin-top: 1em">
       <div class="card-body">
-        <h5 class="card-title">{post.title}</h5>
+        <h5 class="card-title"><a href="<!replace_with_path>{url}">{post.title}</a></h5>
         <h6 class="card-subtitle mb-2 text-muted">{post.date.strftime("%B %d %Y")}</h6>
         <p class="card-text">{post.preview}</p>
       </div>
@@ -269,7 +270,7 @@ def make_tag(tag, template, output_dir):
     page_html = template[:]
     page_html = page_html.replace("<title>template</title>",
                                   f"<title>Tag: {tag.name}</title>")
-    page_html = page_html.replace("<!--main page-->\n<!--/main page-->",
+    page_html = page_html.replace("<!--main page-->\n    <!--/main page-->",
                                   post_cards)
     page_html = page_html.replace("<!replace_with_path>", "../../")
     out_path = os.path.join(output_dir, "blog")
@@ -304,7 +305,7 @@ def make_month(month, posts, template_html, output_dir):
     page_html = template_html[:]
     page_html = page_html.replace("<title>template</title>",
                                   f"<title>{month[0]} {month[1]}</title>")
-    page_html = page_html.replace("<!--main page-->\n<!--/main page-->",
+    page_html = page_html.replace("<!--main page-->\n    <!--/main page-->",
                                   post_cards)
     page_html = page_html.replace("<!replace_with_path>", "../../")
     out_path = os.path.join(output_dir, "blog")
@@ -338,7 +339,7 @@ def make_recent(posts, template_html, output_dir):
     page_html = template_html[:]
     page_html = page_html.replace("<title>template</title>",
                                   "<title>recent posts</title>")
-    page_html = page_html.replace("<!--main page-->\n<!--/main page-->",
+    page_html = page_html.replace("<!--main page-->\n    <!--/main page-->",
                                   post_cards)
     page_html = page_html.replace("<!replace_with_path>", "../")
     out_path = os.path.join(output_dir, "blog")
@@ -369,7 +370,7 @@ def make_core_pages(template_html, input_dir, output_dir):
     home_html = template_html[:]
     home_html = home_html.replace("<title>template</title>",
                                   "<title>james stevenson</title>")
-    home_html = home_html.replace("<!--main page-->\n<!--/main page-->",
+    home_html = home_html.replace("<!--main page-->\n    <!--/main page-->",
                                   home_in_file.read())
     home_in_file.close()
     home_out_path = os.path.join(output_dir, "index.html")
@@ -382,7 +383,7 @@ def make_core_pages(template_html, input_dir, output_dir):
     projects_html = template_html[:]
     projects_html = projects_html.replace("<title>template</title>",
                                           "<title>projects</title>")
-    projects_html = projects_html.replace("<!--main page-->\n<!--/main page-->",
+    projects_html = projects_html.replace("<!--main page-->\n    <!--/main page-->",
                                           projects_in_file.read())
     projects_in_file.close()
     projects_out_path = os.path.join(output_dir, "projects.html")
