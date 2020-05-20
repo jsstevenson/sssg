@@ -402,6 +402,8 @@ def main():
     parser.add_argument('out_path', metavar='out_path', type=str,
                         help='path to output dir')
     args = parser.parse_args()
+    if args.in_path == args.out_path:
+        raise Exception("In and out paths must be different")
     input_dir = args.in_path
     output_dir = args.out_path
 
