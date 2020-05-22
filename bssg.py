@@ -121,10 +121,16 @@ def add_post(fpath, posts_list, tags_dict):
         body = body[:-1]
 
     # add post header + surrounding body
+    tag_link_html = ""
+    for tag in tags:
+        tag_link_html += (f'<li><a href="../../tag/{tag}.html">#{tag}</a></li>')
     header = f"""
     <div class="jumbotron jumbotron-fluid jumbotron-post" style="margin-bottom: 0px">
       <div class="container">
         <h2>{title}</h2>
+        <hr class="my-4">
+        {date.strftime("%B")} {date.day} {date.year}
+        <ul id="unordered">{tag_link_html}</ul>
       </div>
     </div>
     """
