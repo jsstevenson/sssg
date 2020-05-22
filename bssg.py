@@ -225,6 +225,9 @@ def make_post(post, template, output_dir):
     post_html = post_html.replace("<!--main page-->\n    <!--/main page-->",
                                   post.body)
     post_html = post_html.replace("<!replace_with_path>","../../../")
+    post_html = post_html.replace('<img src="../resources/',
+            '<img class="img-fluid img-thumbnail rounded mx-auto d-block" ' +
+            'style="max-width: 85%" src="../../resources/')
     out_path = os.path.join(output_dir, "blog")
     pathlib.Path(out_path).mkdir(exist_ok=True)
     out_path = os.path.join(out_path, str(post.date.year))
@@ -465,17 +468,23 @@ def main():
         make_post(post, template_html, output_dir)
     for tag in tags_dict.values():
         make_tag(tag, template_html, output_dir)
-
     months = defaultdict(list)
     for post in posts_list:
         m_y = (post.date.strftime("%B"), str(post.date.year))
         months[m_y].append(post)
     for month in months.keys():
         make_month(month, months[month], template_html, output_dir)
-
     make_recent(posts_list, template_html, output_dir)
-
     make_core_pages(template_html, input_dir, output_dir)
+
+    # copy images from resources dir
+    resources_out_path = os.path.join(output_dir, "blog/resources")
+    pathlib.Path(resources_out_path).mkdir(exist_ok=True)
+    resources_path = os.path.join(input_dir, "resources")
+    for entry in os.listdir(resources_path):
+        resource_path = os.path.join(resources_path, entry)
+        if os.path.isfile(resource_path):
+            shutil.copy(resource_path, os.path.join(resources_out_path, entry))
 
 
 if __name__ == '__main__':
