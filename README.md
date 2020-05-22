@@ -9,8 +9,7 @@ pages) based on provided HTML templates and posts in Markdown files.
 
 ### Requirements:
 
-* Python 3.6+
-*
+* Python 3.6+ (for [PEP 498-style string formatting](https://www.python.org/dev/peps/pep-0498/))
 
 ### Execution
 
