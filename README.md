@@ -7,7 +7,7 @@ pages) based on provided HTML templates and posts in Markdown files.
 
 ## Setup & Usage
 
-### Requirements:
+### Requirements
 
 * Python 3.6+ (for [PEP 498-style string formatting](https://www.python.org/dev/peps/pep-0498/))
 
@@ -23,4 +23,27 @@ Give it an input directory and an output destination:
 
 ```bash
 python3 blog_generate.py <path-to-blog-content> <path-to-output>
+```
+
+### Input layout
+
+The provided blog content directory should include the following elements:
+
+```
+├── home_content.html
+├── posts
+│   ├── post1.md
+│   ├── post2.md
+│   └── post3.md
+│     ...
+├── projects_content.html
+├── resources
+│   ├── img1.png
+│   ├── img2.png
+│   └── img3.png
+│     ...
+└── template_components
+    ├── body_template.html
+    ├── custom.css
+    └── header_template.html
 ```
