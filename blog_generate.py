@@ -120,6 +120,16 @@ def add_post(fpath, posts_list, tags_dict):
     while body[-1] == '\n':
         body = body[:-1]
 
+    # add post header + surrounding body
+    header = f"""
+    <div class="jumbotron jumbotron-fluid jumbotron-post" style="margin-bottom: 0px">
+      <div class="container">
+        <h2>{title}</h2>
+      </div>
+    </div>
+    """
+    body = header + '<div><div class="card-body">' + body + '</div></div>'
+
     # generate objects
     post = Post(title, date, tags, preview, body)
     posts_list.append(post)
@@ -268,8 +278,17 @@ def make_tag(tag, template, output_dir):
     for post in tag.members:
         post_cards += make_card(post)
     page_html = template[:]
+
     page_html = page_html.replace("<title>template</title>",
                                   f"<title>Tag: {tag.name}</title>")
+    header = f"""
+    <div class="jumbotron jumbotron-fluid jumbotron-post" style="margin-bottom: 0px">
+      <div class="container">
+        <h2>Posts: #{tag.name}</h2>
+      </div>
+    </div><p>
+    """
+    post_cards = header + post_cards
     page_html = page_html.replace("<!--main page-->\n    <!--/main page-->",
                                   post_cards)
     page_html = page_html.replace("<!replace_with_path>", "../../")

@@ -1,4 +1,4 @@
-# sssg: Simple Static Site Generator
+# bssg: Basic Static Site Generator
 
 ## Description
 
