@@ -130,7 +130,7 @@ def add_post(fpath, posts_list, tags_dict):
         <h2>{title}</h2>
         <hr class="my-4">
         {date.strftime("%B")} {date.day} {date.year}
-        <ul id="unordered">{tag_link_html}</ul>
+        <ul id="tag-list">{tag_link_html}</ul>
       </div>
     </div>
     """
