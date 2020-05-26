@@ -121,6 +121,7 @@ def add_post(fpath, posts_list, tags_dict):
         body = body[:-1]
 
     # add post header + surrounding body
+    # process any custom annotations
     tag_link_html = ""
     for tag in tags:
         tag_link_html += (f'<li><a href="../../tag/{tag}.html">#{tag}</a></li>')
@@ -135,7 +136,8 @@ def add_post(fpath, posts_list, tags_dict):
     </div>
     """
     body = header + '<div><div class="card-body">' + body + '</div></div>'
-
+    body = body.replace("<p><strong><em>sm-table</em></strong></p>\n<table>",
+                        '<table class="table table-sm">')
     # generate objects
     post = Post(title, date, tags, preview, body)
     posts_list.append(post)
