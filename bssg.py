@@ -175,7 +175,7 @@ def make_header(posts, in_path):
     header_html += line
     for year in listings.keys():
         for month in listings[year]:
-            header_html += f'<a class="dropdown-item" href="<!replace_with_path>blog/{year}/{month}.html">{month} {year}</a>\n'
+            header_html += f'<a class="dropdown-item" href="<!--main_path-->blog/{year}/{month}.html">{month} {year}</a>\n'
     header_template_html.readline()
     while line:
         header_html += line
@@ -232,7 +232,7 @@ def make_post(post, template, output_dir):
                                   f"<title>{post.title}</title>")
     post_html = post_html.replace("<!--main page-->\n    <!--/main page-->",
                                   post.body)
-    post_html = post_html.replace("<!replace_with_path>","../../../")
+    post_html = post_html.replace("<!--main_path-->","../../../")
     post_html = post_html.replace('<img src="../resources/',
             '<img class="img-fluid img-thumbnail rounded mx-auto d-block" ' +
             'style="max-width: 85%" src="../../resources/')
@@ -251,8 +251,7 @@ def make_post(post, template, output_dir):
     return post_html
 
 
-def make_card(post):
-    url = f"blog/{str(post.date.year)}/{post.date.strftime('%B')}/{remove_unsafe_chars(post.title[:MAX_URL_LEN])}.html"
+def make_card(post, input_dir):
     """Generate HTML for post card in post index pages
 
     Args:
@@ -261,18 +260,18 @@ def make_card(post):
     Returns:
         HTML for generated card
     """
-    return f"""
-    <div class="card" style="margin-top: 1em">
-      <div class="card-body">
-        <h5 class="card-title"><a href="<!replace_with_path>{url}">{post.title}</a></h5>
-        <h6 class="card-subtitle mb-2 text-muted">{post.date.strftime("%B %d %Y")}</h6>
-        <p class="card-text">{post.preview}</p>
-      </div>
-    </div>
-    """
+    card_template_file = open(os.path.join(input_dir, "template_components/card_template.html"))
+    card_html = card_template_file.read()
+    card_template_file.close()
+    url = f"blog/{str(post.date.year)}/{post.date.strftime('%B')}/{remove_unsafe_chars(post.title[:MAX_URL_LEN])}.html"
+    card_html = card_html.replace("<!--post_url-->", url)
+    card_html = card_html.replace("<!--title-->", post.title)
+    card_html = card_html.replace("<!--date-->", post.date.strftime("%B %d %Y"))
+    card_html = card_html.replace("<!--preview-->", post.preview)
+    return card_html
 
 
-def make_tag(tag, template, output_dir):
+def make_tag(tag, template, input_dir, output_dir):
     """Generate page for tag
 
     Args:
@@ -287,7 +286,7 @@ def make_tag(tag, template, output_dir):
     tag.members.sort(key=lambda x: x.date, reverse=True)
     post_cards = ""
     for post in tag.members:
-        post_cards += make_card(post)
+        post_cards += make_card(post, input_dir)
     page_html = template[:]
 
     page_html = page_html.replace("<title>template</title>",
@@ -302,7 +301,7 @@ def make_tag(tag, template, output_dir):
     post_cards = header + post_cards
     page_html = page_html.replace("<!--main page-->\n    <!--/main page-->",
                                   post_cards)
-    page_html = page_html.replace("<!replace_with_path>", "../../")
+    page_html = page_html.replace("<!--main_path-->", "../../")
     out_path = os.path.join(output_dir, "blog")
     pathlib.Path(out_path).mkdir(exist_ok=True)
     out_path = os.path.join(out_path, "tag")
@@ -315,7 +314,7 @@ def make_tag(tag, template, output_dir):
     return page_html
 
 
-def make_month(month, posts, template_html, output_dir):
+def make_month(month, posts, template_html, input_dir, output_dir):
     """Generate index page for a given month/year
 
     Args:
@@ -331,7 +330,7 @@ def make_month(month, posts, template_html, output_dir):
     posts.sort(key=lambda x: x.date, reverse=True)
     post_cards = ""
     for post in posts:
-        post_cards += make_card(post)
+        post_cards += make_card(post, input_dir)
     header = f"""
     <div class="jumbotron jumbotron-fluid jumbotron-post" style="margin-bottom: 0px">
       <div class="container">
@@ -345,7 +344,7 @@ def make_month(month, posts, template_html, output_dir):
                                   f"<title>{month[0]} {month[1]}</title>")
     page_html = page_html.replace("<!--main page-->\n    <!--/main page-->",
                                   post_cards)
-    page_html = page_html.replace("<!replace_with_path>", "../../")
+    page_html = page_html.replace("<!--main_path-->", "../../")
     out_path = os.path.join(output_dir, "blog")
     pathlib.Path(out_path).mkdir(exist_ok=True)
     out_path = os.path.join(out_path, month[1])
@@ -358,7 +357,7 @@ def make_month(month, posts, template_html, output_dir):
     return page_html
 
 
-def make_recent(posts, template_html, output_dir):
+def make_recent(posts, template_html, input_dir, output_dir):
     """Generate page for Recent Posts
 
     Args:
@@ -373,7 +372,7 @@ def make_recent(posts, template_html, output_dir):
     posts.sort(key=lambda x: x.date, reverse=True)
     post_cards = ""
     for post in posts[:10]:
-        post_cards += make_card(post)
+        post_cards += make_card(post, input_dir)
     header = f"""
     <div class="jumbotron jumbotron-fluid jumbotron-post" style="margin-bottom: 0px">
       <div class="container">
@@ -387,7 +386,7 @@ def make_recent(posts, template_html, output_dir):
                                   "<title>recent posts</title>")
     page_html = page_html.replace("<!--main page-->\n    <!--/main page-->",
                                   post_cards)
-    page_html = page_html.replace("<!replace_with_path>", "../")
+    page_html = page_html.replace("<!--main_path-->", "../")
     out_path = os.path.join(output_dir, "blog")
     pathlib.Path(out_path).mkdir(exist_ok=True)
     out_path = os.path.join(out_path, "recent.html")
@@ -410,7 +409,7 @@ def make_core_pages(template_html, input_dir, output_dir):
     Returns:
         Nothing, but writes HTML to files under output_dir
     """
-    template_html = template_html.replace("<!replace_with_path>", "")
+    template_html = template_html.replace("<!--main_path-->", "")
     home_in_path = os.path.join(input_dir, "home_content.html")
     home_in_file = open(home_in_path, "r")
     home_html = template_html[:]
@@ -475,14 +474,14 @@ def main():
     for post in posts_list:
         make_post(post, template_html, output_dir)
     for tag in tags_dict.values():
-        make_tag(tag, template_html, output_dir)
+        make_tag(tag, template_html, input_dir, output_dir)
     months = defaultdict(list)
     for post in posts_list:
         m_y = (post.date.strftime("%B"), str(post.date.year))
         months[m_y].append(post)
     for month in months.keys():
-        make_month(month, months[month], template_html, output_dir)
-    make_recent(posts_list, template_html, output_dir)
+        make_month(month, months[month], template_html, input_dir, output_dir)
+    make_recent(posts_list, template_html, input_dir, output_dir)
     make_core_pages(template_html, input_dir, output_dir)
 
     # copy images from resources dir

@@ -36,7 +36,7 @@ The provided blog content directory should include the following elements:
 │   ├── post2.md
 │   └── post3.md
 │     ...
-├── projects_content.html
+├── projects_content.html  # or other static content pages
 ├── resources
 │   ├── img1.png
 │   ├── img2.png
@@ -44,6 +44,8 @@ The provided blog content directory should include the following elements:
 │     ...
 └── template_components
     ├── body_template.html
+    ├── card_template.html
     ├── custom.css
     └── header_template.html
+    ___
 ```
