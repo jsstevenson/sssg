@@ -22,7 +22,7 @@ pip install -r requirements.txt
 Give it an input directory and an output destination:
 
 ```bash
-python3 blog_generate.py <path-to-blog-content> <path-to-output>
+python3 bssg.py <path-to-blog-content> <path-to-output>
 ```
 
 ### Input layout
@@ -49,3 +49,8 @@ The provided blog content directory should include the following elements:
     └── header_template.html
     ___
 ```
+
+
+## Known Issues
+
+* Risks of duplicating post names/URLs and tag URLs
