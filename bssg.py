@@ -126,7 +126,7 @@ def add_post(fpath, posts_list, tags_dict):
     for tag in tags:
         tag_link_html += (f'<li><a href="../../tag/{tag}.html">#{tag}</a></li>')
     header = f"""
-    <div class="jumbotron jumbotron-fluid jumbotron-post" style="margin-bottom: 0px">
+    <div class="jumbotron jumbotron-fluid jumbotron-post">
       <div class="container">
         <h2>{title}</h2>
         <hr class="my-4">
@@ -292,11 +292,11 @@ def make_tag(tag, template, input_dir, output_dir):
     page_html = page_html.replace("<title>template</title>",
                                   f"<title>Tag: {tag.name}</title>")
     header = f"""
-    <div class="jumbotron jumbotron-fluid jumbotron-post" style="margin-bottom: 0px">
+    <div class="jumbotron jumbotron-fluid jumbotron-post">
       <div class="container">
         <h2>Posts: #{tag.name}</h2>
       </div>
-    </div><p>
+    </div>
     """
     post_cards = header + post_cards
     page_html = page_html.replace("<!--main page-->\n    <!--/main page-->",
@@ -332,11 +332,11 @@ def make_month(month, posts, template_html, input_dir, output_dir):
     for post in posts:
         post_cards += make_card(post, input_dir)
     header = f"""
-    <div class="jumbotron jumbotron-fluid jumbotron-post" style="margin-bottom: 0px">
+    <div class="jumbotron jumbotron-fluid jumbotron-post">
       <div class="container">
         <h2>Posts: {month[0]} {month[1]}</h2>
       </div>
-    </div><p>
+    </div>
     """
     post_cards = header + post_cards
     page_html = template_html[:]
@@ -374,11 +374,11 @@ def make_recent(posts, template_html, input_dir, output_dir):
     for post in posts[:10]:
         post_cards += make_card(post, input_dir)
     header = f"""
-    <div class="jumbotron jumbotron-fluid jumbotron-post" style="margin-bottom: 0px">
+    <div class="jumbotron jumbotron-fluid jumbotron-post">
       <div class="container">
         <h2>Recent Posts</h2>
       </div>
-    </div><p>
+    </div>
     """
     post_cards = header + post_cards
     page_html = template_html[:]
