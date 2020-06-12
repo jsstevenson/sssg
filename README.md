@@ -47,7 +47,8 @@ The provided blog content directory should include the following elements:
     ├── card_template.html
     ├── custom.css
     └── header_template.html
-    ___
+    ___ post_list_title_card.html
+    ___ post_list_card.html
 ```
 
 

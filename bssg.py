@@ -85,7 +85,7 @@ def remove_unsafe_chars(string):
     return fixed.lower()
 
 
-def add_post(fpath, posts_list, tags_dict):
+def add_post(fpath, in_path, posts_list, tags_dict):
     """Create Post (and any necessary Tags) and add them to tracking lists
 
     Args:
@@ -125,17 +125,11 @@ def add_post(fpath, posts_list, tags_dict):
     tag_link_html = ""
     for tag in tags:
         tag_link_html += (f'<li><a href="../../tag/{tag}.html">#{tag}</a></li>')
-    header = f"""
-    <div class="jumbotron jumbotron-fluid jumbotron-post">
-      <div class="container">
-        <h2>{title}</h2>
-        <hr class="my-4">
-        {date.strftime("%B")} {date.day} {date.year}
-        <ul id="tag-list">{tag_link_html}</ul>
-      </div>
-    </div>
-    """
-    body = header + '<div><div class="card-body">' + body + '</div></div>'
+    title_card = open(os.path.join(in_path, "template_components/post_title_card.html")).read()
+    title_card = title_card.replace("<!--title-->", title)
+    title_card = title_card.replace("<!--date-->", f"{date.strftime('%B')} {date.day} {date.year}")
+    title_card = title_card.replace("<!--tags-->", tag_link_html)
+    body = title_card + '<div><div class="card-body">' + body + '</div></div>'
     body = body.replace("<p><strong><em>sm-table</em></strong></p>\n<table>",
                         '<table class="table table-sm">')
     # generate objects
@@ -288,17 +282,11 @@ def make_tag(tag, template, input_dir, output_dir):
     for post in tag.members:
         post_cards += make_card(post, input_dir)
     page_html = template[:]
-
     page_html = page_html.replace("<title>template</title>",
                                   f"<title>Tag: {tag.name}</title>")
-    header = f"""
-    <div class="jumbotron jumbotron-fluid jumbotron-post">
-      <div class="container">
-        <h2>Posts: #{tag.name}</h2>
-      </div>
-    </div>
-    """
-    post_cards = header + post_cards
+    title_card = open(os.path.join(input_dir, "template_components/post_list_title_card.html")).read()
+    title_card = title_card.replace("<!--title-->", f"Posts: #{tag.name}")
+    post_cards = title_card + post_cards
     page_html = page_html.replace("<!--main page-->\n    <!--/main page-->",
                                   post_cards)
     page_html = page_html.replace("<!--main_path-->", "../../")
@@ -331,14 +319,9 @@ def make_month(month, posts, template_html, input_dir, output_dir):
     post_cards = ""
     for post in posts:
         post_cards += make_card(post, input_dir)
-    header = f"""
-    <div class="jumbotron jumbotron-fluid jumbotron-post">
-      <div class="container">
-        <h2>Posts: {month[0]} {month[1]}</h2>
-      </div>
-    </div>
-    """
-    post_cards = header + post_cards
+    title_card = open(os.path.join(input_dir, "template_components/post_list_title_card.html")).read()
+    title_card = title_card.replace("<!--title-->", f"Posts: {month[0]} {month[1]}")
+    post_cards = title_card + post_cards
     page_html = template_html[:]
     page_html = page_html.replace("<title>template</title>",
                                   f"<title>{month[0]} {month[1]}</title>")
@@ -373,14 +356,9 @@ def make_recent(posts, template_html, input_dir, output_dir):
     post_cards = ""
     for post in posts[:10]:
         post_cards += make_card(post, input_dir)
-    header = f"""
-    <div class="jumbotron jumbotron-fluid jumbotron-post">
-      <div class="container">
-        <h2>Recent Posts</h2>
-      </div>
-    </div>
-    """
-    post_cards = header + post_cards
+    title_card = open(os.path.join(input_dir, "template_components/post_list_title_card.html")).read()
+    title_card = title_card.replace("<!--title-->", f"Recent Posts")
+    post_cards = title_card + post_cards
     page_html = template_html[:]
     page_html = page_html.replace("<title>template</title>",
                                   "<title>recent posts</title>")
@@ -460,7 +438,7 @@ def main():
     for entry in os.listdir(posts_path):
         post_path = os.path.join(posts_path, entry)
         if os.path.isfile(post_path):
-            add_post(post_path, posts_list, tags_dict)
+            add_post(post_path, input_dir, posts_list, tags_dict)
 
     # generate template
     header_html = make_header(posts_list, input_dir)
