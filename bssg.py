@@ -61,6 +61,8 @@ def extract_meta(line):
     """
     if (line[:2] == "# ") and (line[-1] == '\n'):
         return line[2:-1]
+    elif line[:2] == "#":
+        return ""
     else:
         raise Exception("Data invalid or non-existant")
 
@@ -80,7 +82,7 @@ def remove_unsafe_chars(string):
     for c in string:
         if pattern.search(c):
             fixed += c
-        elif c is ' ':
+        elif c == ' ':
             fixed += '-'
     return fixed.lower()
 
@@ -132,6 +134,8 @@ def add_post(fpath, in_path, posts_list, tags_dict):
     body = title_card + '<div><div class="card-body">' + body + '</div></div>'
     body = body.replace("<p><strong><em>sm-table</em></strong></p>\n<table>",
                         '<table class="table table-sm">')
+    body = body.replace("<p><strong><em>blockquote</em></strong></p>", '<blockquote class="blockquote">')
+    body = body.replace('<p><strong><em>end-blockquote</em></strong></p>', '</blockquote>')
     # generate objects
     post = Post(title, date, tags, preview, body)
     posts_list.append(post)
@@ -167,9 +171,12 @@ def make_header(posts, in_path):
         header_html += line
         line = header_template_html.readline()
     header_html += line
-    for year in listings.keys():
-        for month in listings[year]:
-            header_html += f'<a class="dropdown-item" href="<!--main_path-->blog/{year}/{month}.html">{month} {year}</a>\n'
+    months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+              'August', 'September', 'October', 'November', 'December']
+    for year in sorted(listings.keys(), reverse=True):
+        for month in months[::-1]:
+            if month in listings[year]:
+                header_html += f'<a class="dropdown-item" href="<!--main_path-->blog/{year}/{month}.html">{month} {year}</a>\n'
     header_template_html.readline()
     while line:
         header_html += line
