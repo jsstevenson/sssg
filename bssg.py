@@ -127,7 +127,7 @@ def add_post(fpath, in_path, posts_list, tags_dict):
     tag_link_html = ""
     for tag in tags:
         tag_link_html += (f'<li><a href="../../tag/{tag}.html">#{tag}</a></li>')
-    title_card = open(os.path.join(in_path, "template_components/post_title_card.html")).read()
+    title_card = open(os.path.join(in_path, "theme/post_title_card.html")).read()
     title_card = title_card.replace("<!--title-->", title)
     title_card = title_card.replace("<!--date-->", f"{date.strftime('%B')} {date.day} {date.year}")
     title_card = title_card.replace("<!--tags-->", tag_link_html)
@@ -164,7 +164,7 @@ def make_header(posts, in_path):
     header_html = ""
     for post in posts:
         listings[post.date.year].add(post.date.strftime("%B"))
-    header_template_html = open(os.path.join(in_path, "template_components/header_template.html"))
+    header_template_html = open(os.path.join(in_path, "theme/header_template.html"))
     start_pattern = re.compile("<!--monthlist-->")
     line = header_template_html.readline()
     while not start_pattern.search(line):
@@ -199,7 +199,7 @@ def make_template(input_dir, header_html):
         a String containing the full HTML template for all pages
     """
     t_file = open(os.path.join(input_dir,
-                               'template_components/body_template.html'), 'r')
+                               'theme/body_template.html'), 'r')
     template_html = ""
     pattern = re.compile("<!--navbar-->")
     line = t_file.readline()
@@ -261,7 +261,7 @@ def make_card(post, input_dir):
     Returns:
         HTML for generated card
     """
-    card_template_file = open(os.path.join(input_dir, "template_components/card_template.html"))
+    card_template_file = open(os.path.join(input_dir, "theme/card_template.html"))
     card_html = card_template_file.read()
     card_template_file.close()
     url = f"blog/{str(post.date.year)}/{post.date.strftime('%B')}/{remove_unsafe_chars(post.title[:MAX_URL_LEN])}.html"
@@ -291,7 +291,7 @@ def make_tag(tag, template, input_dir, output_dir):
     page_html = template[:]
     page_html = page_html.replace("<title>template</title>",
                                   f"<title>Tag: {tag.name}</title>")
-    title_card = open(os.path.join(input_dir, "template_components/post_list_title_card.html")).read()
+    title_card = open(os.path.join(input_dir, "theme/post_list_title_card.html")).read()
     title_card = title_card.replace("<!--title-->", f"Posts: #{tag.name}")
     post_cards = title_card + post_cards
     page_html = page_html.replace("<!--main page-->\n    <!--/main page-->",
@@ -326,7 +326,7 @@ def make_month(month, posts, template_html, input_dir, output_dir):
     post_cards = ""
     for post in posts:
         post_cards += make_card(post, input_dir)
-    title_card = open(os.path.join(input_dir, "template_components/post_list_title_card.html")).read()
+    title_card = open(os.path.join(input_dir, "theme/post_list_title_card.html")).read()
     title_card = title_card.replace("<!--title-->", f"Posts: {month[0]} {month[1]}")
     post_cards = title_card + post_cards
     page_html = template_html[:]
@@ -363,7 +363,7 @@ def make_recent(posts, template_html, input_dir, output_dir):
     post_cards = ""
     for post in posts[:10]:
         post_cards += make_card(post, input_dir)
-    title_card = open(os.path.join(input_dir, "template_components/post_list_title_card.html")).read()
+    title_card = open(os.path.join(input_dir, "theme/post_list_title_card.html")).read()
     title_card = title_card.replace("<!--title-->", f"Recent Posts")
     post_cards = title_card + post_cards
     page_html = template_html[:]
@@ -382,44 +382,34 @@ def make_recent(posts, template_html, input_dir, output_dir):
     return page_html
 
 
-def make_core_pages(template_html, input_dir, output_dir):
+def make_static_pages(template_html, input_dir, output_dir):
     """Generate core site pages
 
     Args:
         template_html (String): string containing page template html
-        input_dir (string): string containing path to input directory. Should
-        include premade HTML to generate "home" and "projects" pages.
+        input_dir (string): string containing path to input directory.
+             *** Should include static page directory, including
+             pages like projects.
         output_dir (String): string containing path to output directoryA
 
     Returns:
         Nothing, but writes HTML to files under output_dir
     """
     template_html = template_html.replace("<!--main_path-->", "")
-    home_in_path = os.path.join(input_dir, "home_content.html")
-    home_in_file = open(home_in_path, "r")
-    home_html = template_html[:]
-    home_html = home_html.replace("<title>template</title>",
-                                  "<title>james stevenson</title>")
-    home_html = home_html.replace("<!--main page-->\n    <!--/main page-->",
-                                  home_in_file.read())
-    home_in_file.close()
-    home_out_path = os.path.join(output_dir, "index.html")
-    home_out_file = open(home_out_path, "w")
-    home_out_file.write(home_html)
-    home_out_file.close()
-
-    projects_in_path = os.path.join(input_dir, "projects_content.html")
-    projects_in_file = open(projects_in_path, "r")
-    projects_html = template_html[:]
-    projects_html = projects_html.replace("<title>template</title>",
-                                          "<title>projects</title>")
-    projects_html = projects_html.replace("<!--main page-->\n    <!--/main page-->",
-                                          projects_in_file.read())
-    projects_in_file.close()
-    projects_out_path = os.path.join(output_dir, "projects.html")
-    projects_out_file = open(projects_out_path, "w")
-    projects_out_file.write(projects_html)
-    projects_out_file.close()
+    static_dir = os.path.join(input_dir, "static-pages");
+    for page in os.listdir(static_dir):
+        page_name = os.path.splitext(page)[0]
+        if page_name == "index":
+            page_name = "james stevenson"
+        with open(os.path.join(static_dir, page), "r") as infile:
+            html = (template_html[:]
+                    .replace("<title>template</title>",
+                                 f"<title>{page_name}</title>")
+                    .replace("<!--main page-->\n    <!--/main page-->",
+                                 infile.read()))
+            outpath = os.path.join(output_dir, page)
+            with open(outpath, "w") as outfile:
+                outfile.write(html)
 
     print("Successfully generated core pages")
     return
@@ -454,7 +444,7 @@ def main():
     # generate pages from template
     pathlib.Path(output_dir).mkdir(exist_ok=True)
     pathlib.Path(os.path.join(output_dir, "css")).mkdir(exist_ok=True)
-    shutil.copy(os.path.join(input_dir, "template_components/custom.css"),
+    shutil.copy(os.path.join(input_dir, "theme/custom.css"),
                 os.path.join(output_dir, "css/"))
     for post in posts_list:
         make_post(post, template_html, output_dir)
@@ -467,7 +457,7 @@ def main():
     for month in months.keys():
         make_month(month, months[month], template_html, input_dir, output_dir)
     make_recent(posts_list, template_html, input_dir, output_dir)
-    make_core_pages(template_html, input_dir, output_dir)
+    make_static_pages(template_html, input_dir, output_dir)
 
     # copy images from resources dir
     resources_out_path = os.path.join(output_dir, "blog/resources")

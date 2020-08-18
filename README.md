@@ -25,24 +25,26 @@ Give it an input directory and an output destination:
 python3 bssg.py <path-to-blog-content> <path-to-output>
 ```
 
-### Input layout
+### Input directory layout
 
 The provided blog content directory should include the following elements:
 
 ```
-├── home_content.html
 ├── posts
 │   ├── post1.md
 │   ├── post2.md
 │   └── post3.md
 │     ...
-├── projects_content.html  # or other static content pages
-├── resources
+├── static-pages # include static content pages here
+│   ├── index.html
+│   └── projects.html
+│     ...
+├── resources # for any needed content in posts
 │   ├── img1.png
 │   ├── img2.png
 │   └── img3.png
 │     ...
-└── template_components
+└── theme
     ├── body_template.html
     ├── card_template.html
     ├── custom.css
