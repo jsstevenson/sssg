@@ -396,7 +396,7 @@ def make_static_pages(template_html, input_dir, output_dir):
         Nothing, but writes HTML to files under output_dir
     """
     template_html = template_html.replace("<!--main_path-->", "")
-    static_dir = os.path.join(input_dir, "static-pages");
+    static_dir = os.path.join(input_dir, "static-pages")
     for page in os.listdir(static_dir):
         page_name = os.path.splitext(page)[0]
         if page_name == "index":
