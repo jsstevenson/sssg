@@ -364,7 +364,7 @@ def make_recent(posts, template_html, input_dir, output_dir):
     for post in posts[:10]:
         post_cards += make_card(post, input_dir)
     title_card = open(os.path.join(input_dir, "theme/post_list_title_card.html")).read()
-    title_card = title_card.replace("<!--title-->", f"Recent Posts")
+    title_card = title_card.replace("<!--title-->", "Recent Posts")
     post_cards = title_card + post_cards
     page_html = template_html[:]
     page_html = page_html.replace("<title>template</title>",
@@ -382,6 +382,23 @@ def make_recent(posts, template_html, input_dir, output_dir):
     return page_html
 
 
+def make_static_page(
+    template_html: str, input_file_path: str, output_file_path: str, page_name: str,
+    main_path_prefix: str = ""
+) -> None:
+    """TODO"""
+    with open(input_file_path, "r") as infile:
+        html = (template_html[:]
+                .replace("<title>template</title>",
+                             f"<title>{page_name}</title>")
+                .replace("<!--main page-->\n    <!--/main page-->",
+                             infile.read()))
+        html = html.replace("<!--main_path-->", main_path_prefix)
+        with open(output_file_path, "w") as outfile:
+            outfile.write(html)
+        print(f"generated {output_file_path}")
+
+
 def make_static_pages(template_html, input_dir, output_dir):
     """Generate core site pages
 
@@ -390,29 +407,38 @@ def make_static_pages(template_html, input_dir, output_dir):
         input_dir (string): string containing path to input directory.
              *** Should include static page directory, including
              pages like projects.
-        output_dir (String): string containing path to output directoryA
+        output_dir (String): string containing path to output directory
 
     Returns:
         Nothing, but writes HTML to files under output_dir
     """
-    template_html = template_html.replace("<!--main_path-->", "")
     static_dir = os.path.join(input_dir, "static-pages")
-    for page in os.listdir(static_dir):
-        page_name = os.path.splitext(page)[0]
+    for item in os.listdir(static_dir):
+        item_path = os.path.join(static_dir, item)
+        if os.path.isdir(item_path):
+            output_subdir = os.path.join(output_dir, item)
+            if not os.path.exists(output_subdir):
+                os.makedirs(output_subdir)
+            for sub_item in os.listdir(item_path):
+                sub_item_path = os.path.join(item_path, sub_item)
+                page_name = os.path.splitext(sub_item)[0]
+                make_static_page(
+                    template_html,
+                    sub_item_path,
+                    os.path.join(output_subdir, sub_item),
+                    page_name,
+                    "../"
+                )
+            continue
+        page_name = os.path.splitext(item)[0]
         if page_name == "index":
             page_name = "james stevenson"
-        with open(os.path.join(static_dir, page), "r") as infile:
-            html = (template_html[:]
-                    .replace("<title>template</title>",
-                                 f"<title>{page_name}</title>")
-                    .replace("<!--main page-->\n    <!--/main page-->",
-                                 infile.read()))
-            outpath = os.path.join(output_dir, page)
-            with open(outpath, "w") as outfile:
-                outfile.write(html)
-
-    print("Successfully generated core pages")
-    return
+        make_static_page(
+            template_html,
+            item_path,
+            os.path.join(output_dir, item),
+            page_name
+        )
 
 
 def main():
